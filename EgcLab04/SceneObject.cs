@@ -8,7 +8,7 @@ public sealed class SceneObject : IDisposable
     public string Name { get; }
     public Mesh Mesh { get; }
     public Transform2D Transform { get; set; }
-    public Color4 Tint = Color4.White;   // se înmulțește cu culorile vârfurilor (alb = neschimbat)
+    public Color4 Tint = Color4.White;
 
     public SceneObject(string name, Mesh mesh, Transform2D transform)
     {

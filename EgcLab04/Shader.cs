@@ -9,7 +9,6 @@ namespace Egc;
 /// </summary>
 public sealed class Shader : IDisposable
 {
-    /// <summary>Identificatorul (handle) programului în OpenGL.</summary>
     public int Handle { get; }
 
     private readonly Dictionary<string, int> _uniformLocations = new();
@@ -31,14 +30,12 @@ public sealed class Shader : IDisposable
             throw new InvalidOperationException($"Eroare la linkarea programului shader:\n{log}");
         }
 
-        // După link, obiectele shader individuale nu mai sunt necesare.
         GL.DetachShader(Handle, vertex);
         GL.DetachShader(Handle, fragment);
         GL.DeleteShader(vertex);
         GL.DeleteShader(fragment);
     }
 
-    /// <summary>Citește shaderele din fișiere (căile sunt relative la folderul executabilului).</summary>
     public static Shader FromFiles(string vertexPath, string fragmentPath)
     {
         string baseDir = AppContext.BaseDirectory;
@@ -47,11 +44,7 @@ public sealed class Shader : IDisposable
         return new Shader(vertexSource, fragmentSource);
     }
 
-    /// <summary>Activează programul: apelurile de desenare următoare îl vor folosi.</summary>
     public void Use() => GL.UseProgram(Handle);
-
-    // --- Uniforme -----------------------------------------------------------
-    // Atenție: GL.Uniform* se aplică programului ACTIV (cel setat cu Use()).
 
     public void SetMatrix4(string name, Matrix4 value)
     {
@@ -68,13 +61,11 @@ public sealed class Shader : IDisposable
         GL.Uniform4(GetLocation(name), value.R, value.G, value.B, value.A);
     }
 
-    /// <summary>NOU (laboratorul 3): uniformă de tip float (în GLSL: uniform float ...).</summary>
     public void SetFloat(string name, float value)
     {
         GL.Uniform1(GetLocation(name), value);
     }
 
-    /// <summary>NOU (laboratorul 3): uniformă de tip int (în GLSL: uniform int ...).</summary>
     public void SetInt(string name, int value)
     {
         GL.Uniform1(GetLocation(name), value);
@@ -82,9 +73,6 @@ public sealed class Shader : IDisposable
 
     private int GetLocation(string name)
     {
-        // Întrebăm driverul o singură dată pentru fiecare nume și reținem răspunsul.
-        // Dacă uniforma nu există (sau a fost eliminată de compilator fiindcă nu e folosită),
-        // locația este -1, iar GL.Uniform* cu -1 este ignorat fără eroare.
         if (!_uniformLocations.TryGetValue(name, out int location))
         {
             location = GL.GetUniformLocation(Handle, name);
